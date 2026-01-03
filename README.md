@@ -1,6 +1,7 @@
 <!-- Anchor for Back to Top -->
 <div id="top"></div>
 ## 👇🏻 Click the below image to watch the StreakSync Demo video 
+
 [![Watch the StreakSync Demo video](https://img.youtube.com/vi/-Fiu0r9gOAg/maxresdefault.jpg)](https://youtu.be/-Fiu0r9gOAg)
 
 
