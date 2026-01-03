@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { GoalType, GoalCategory } from '../types';
-import { X, Sparkles } from 'lucide-react';
+import { X, Sparkles, BrainCircuit, Wand2 } from 'lucide-react';
+import { suggestCommunityName, generateGoalDetails } from '../services/geminiService';
 
 interface CreateGoalModalProps {
   onClose: () => void;
-  onCreate: (title: string, description: string, why: string, type: GoalType, category: GoalCategory) => void;
+  onCreate: (title: string, description: string, why: string, type: GoalType, category: GoalCategory, communityName?: string) => void;
 }
 
 export const CreateGoalModal: React.FC<CreateGoalModalProps> = ({ onClose, onCreate }) => {
@@ -13,10 +14,30 @@ export const CreateGoalModal: React.FC<CreateGoalModalProps> = ({ onClose, onCre
   const [why, setWhy] = useState('');
   const [type, setType] = useState<GoalType>(GoalType.DAILY);
   const [category, setCategory] = useState<GoalCategory>(GoalCategory.FITNESS);
+  const [communityName, setCommunityName] = useState('');
+  const [isSuggesting, setIsSuggesting] = useState(false);
+  const [isAutofilling, setIsAutofilling] = useState(false);
+
+  const handleAutofill = async () => {
+    if (!title) return;
+    setIsAutofilling(true);
+    const { description: desc, why: reason } = await generateGoalDetails(title);
+    if (desc) setDescription(desc);
+    if (reason) setWhy(reason);
+    setIsAutofilling(false);
+  };
+
+  const handleSuggestName = async () => {
+    if (!title) return;
+    setIsSuggesting(true);
+    const name = await suggestCommunityName(title, description);
+    setCommunityName(name);
+    setIsSuggesting(false);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onCreate(title, description, why, type, category);
+    onCreate(title, description, why, type, category, communityName);
   };
 
   return (
@@ -35,14 +56,36 @@ export const CreateGoalModal: React.FC<CreateGoalModalProps> = ({ onClose, onCre
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-400 mb-1">Goal Title</label>
-            <input 
-              type="text" 
-              required
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-              placeholder="e.g., Read 30 minutes daily"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
+            <div className="flex space-x-2">
+              <input 
+                type="text" 
+                required
+                className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                placeholder="e.g., Read 30 minutes daily"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+              <button
+                 type="button"
+                 onClick={handleAutofill}
+                 disabled={!title || isAutofilling}
+                 className={`px-3 py-2 rounded-lg font-medium transition-colors flex items-center text-sm ${
+                   !title 
+                     ? 'bg-slate-800 text-slate-600 cursor-not-allowed'
+                     : 'bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30'
+                 }`}
+                 title="Auto-generate description & why"
+               >
+                 {isAutofilling ? (
+                   <Sparkles className="w-4 h-4 animate-spin" />
+                 ) : (
+                   <>
+                     <Wand2 className="w-4 h-4 mr-1.5" />
+                     Autofill
+                   </>
+                 )}
+               </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -88,6 +131,38 @@ export const CreateGoalModal: React.FC<CreateGoalModalProps> = ({ onClose, onCre
                value={why}
                onChange={(e) => setWhy(e.target.value)}
              />
+          </div>
+
+          <div>
+             <label className="block text-sm font-medium text-slate-400 mb-1">Squad Name (Optional)</label>
+             <div className="flex space-x-2">
+               <input 
+                 type="text" 
+                 className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                 placeholder="e.g., Morning Milers"
+                 value={communityName}
+                 onChange={(e) => setCommunityName(e.target.value)}
+               />
+               <button
+                 type="button"
+                 onClick={handleSuggestName}
+                 disabled={!title || isSuggesting}
+                 className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center ${
+                   !title 
+                     ? 'bg-slate-800 text-slate-600 cursor-not-allowed'
+                     : 'bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600/30'
+                 }`}
+               >
+                 {isSuggesting ? (
+                   <Sparkles className="w-4 h-4 animate-spin" />
+                 ) : (
+                   <>
+                     <BrainCircuit className="w-4 h-4 mr-2" />
+                     AI Suggest
+                   </>
+                 )}
+               </button>
+             </div>
           </div>
 
           <div className="pt-4 flex justify-end space-x-3">

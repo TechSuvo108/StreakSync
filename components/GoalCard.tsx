@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Goal, GoalType } from '../types';
-import { Flame, CheckCircle, Shield, BrainCircuit, Heart, Trophy, Trash2 } from 'lucide-react';
+import { Flame, CheckCircle, Shield, BrainCircuit, Heart, Trophy, Trash2, Users } from 'lucide-react';
 import { generateMotivation } from '../services/geminiService';
 
 interface GoalCardProps {
@@ -16,6 +16,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({ goal, userName, onCheckIn, o
   const [loading, setLoading] = useState(false);
 
   const handleGetMotivation = async () => {
+    setMotivation(null); // Clear previous message to show loading state effectively
     setLoading(true);
     const message = await generateMotivation(goal, userName);
     setMotivation(message);
@@ -62,6 +63,13 @@ export const GoalCard: React.FC<GoalCardProps> = ({ goal, userName, onCheckIn, o
         <p className="text-sm text-slate-300 italic">"{goal.why}"</p>
       </div>
 
+      {goal.communityName && (
+        <div className="flex items-center text-xs text-indigo-400 mb-2 bg-indigo-900/20 px-3 py-1.5 rounded-full w-fit">
+          <Users className="w-3 h-3 mr-1.5" />
+          Squad: <span className="font-semibold ml-1">{goal.communityName}</span>
+        </div>
+      )}
+
       {motivation && (
         <div className="bg-indigo-900/30 p-3 rounded-lg border border-indigo-500/30 mb-4 animate-fade-in">
            <div className="flex items-center text-xs text-indigo-300 mb-1">
@@ -99,14 +107,18 @@ export const GoalCard: React.FC<GoalCardProps> = ({ goal, userName, onCheckIn, o
         </div>
 
         <div className="flex space-x-2">
-           {/* ... existing buttons ... */}
            <button 
             onClick={handleGetMotivation}
             disabled={loading}
-            className="p-2 rounded-full bg-slate-700 text-slate-300 hover:bg-slate-600 transition-colors"
+            className={`flex items-center px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+              loading 
+                ? 'bg-slate-700 text-indigo-400' 
+                : 'bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600/30 hover:text-indigo-300 border border-indigo-500/30'
+            }`}
             title="Get AI Motivation"
            >
-             <BrainCircuit className={`w-5 h-5 ${loading ? 'animate-pulse text-indigo-400' : ''}`} />
+             <BrainCircuit className={`w-4 h-4 mr-1.5 ${loading ? 'animate-pulse' : ''}`} />
+             {loading ? 'Thinking...' : 'Get Motivation'}
            </button>
            
            <button 

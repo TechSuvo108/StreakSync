@@ -68,7 +68,7 @@ const App: React.FC = () => {
     }, [authUser]);
 
 
-    const handleCreateGoal = async (title: string, description: string, why: string, type: GoalType, category: GoalCategory) => {
+    const handleCreateGoal = async (title: string, description: string, why: string, type: GoalType, category: GoalCategory, communityName?: string) => {
         if (!authUser) return;
 
         const newGoal: Omit<Goal, 'id'> = {
@@ -83,6 +83,7 @@ const App: React.FC = () => {
             longestStreak: 0,
             isFrozen: false,
             communityId: 'temp',
+            communityName,
             completedToday: false
         };
 
