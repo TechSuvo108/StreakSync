@@ -1,7 +1,7 @@
 <!-- Anchor for Back to Top -->
 <div id="top"></div>
 
-![StreakSync Preview](./assets/preview.png)
+![StreakSync Preview](./StreakSync.mp4)
 
 <div align="center">
 
